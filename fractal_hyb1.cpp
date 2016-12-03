@@ -63,7 +63,35 @@ int main(int argc, char *argv[])
   GPU_Exec(gpu_frames, width, pic_d);
 
   // the following code should compute the remaining frames on the CPU
+double delta;
+double x, y, x2, y2;
+int depth;
 
+#pragma omp parallel for default(none) shared(pic, width, frame) private(delta, x, y, x2, y2, depth)
+ for (int frame = gpu_frames; frame < frames; frame++) {
+    delta = Delta * pow(.99, frame + 1);
+    const double xMin = xMid - delta;
+    const double yMin = yMid - delta;
+    const double dw = 2.0 * delta / width;
+    for (int row = 0; row < width; row++) {
+      const double cy = -yMin - row * dw;
+      for (int col = 0; col < width; col++) {
+        const double cx = -xMin - col * dw;
+        double x = cx;
+        double y = cy;
+        int depth = 256;
+        double x2, y2;
+        do {
+          x2 = x * x;
+          y2 = y * y;
+          y = 2 * x * y + cy;
+          x = x2 - y2 + cx;
+          depth--;
+        } while ((depth > 0) && ((x2 + y2) < 5.0));
+        pic[frame * width * width + row * width + col] = (unsigned char)depth;
+      }
+    }
+  }
 /* insert an OpenMP parallelized FOR loop with 16 threads, default(none), and a cyclic schedule */
 
   // the following call should copy the GPU's result into the beginning of the CPU's pic array
