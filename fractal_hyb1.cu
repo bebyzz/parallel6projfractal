@@ -37,20 +37,53 @@ static __global__
 void FractalKernel(const int gpu_frames, const int width, unsigned char pic_d[])
 {
   // kernel code goes in here; use the same parallelization approach as in the previous project
+    const int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    if (idx < gpu_frames * (width * width)) {
+        const int col = idx % width;
+        const int row = (idx / width) % width;
+        const int frame = idx / (width * width);
+
+        const float delta = Delta * pow(.99, frame+1) ;
+        const float xMin = xMid - delta;
+        const float yMin = yMid - delta;
+        const float dw = 2.0 * delta / width;
+
+        const float cy = -yMin - row * dw;
+        const float cx = -xMin - col * dw;
+        float x = cx;
+        float y = cy;
+        int depth = 256;
+        float x2, y2;
+        do {
+        	x2 = x * x;
+          	y2 = y * y;
+          	y = 2 * x * y + cy;
+        	x = x2 - y2 + cx;
+          	depth--;
+	} while ((depth > 0) && ((x2 + y2) < 5.0));
+    pic_d[idx] = (unsigned char)depth;
+  }
 }
 
 unsigned char* GPU_Init(const int size)
 {
   // allocate pic_d array on GPU and return pointer to it
+	
+	if(cudaSuccess != cuddaMalloc((void **)&pic_d, frames * width * width * sizeof(unsigned char))) {
+		fprintf(stderr, "could not allocate memory\n"); 
+		exit(-1);
+	}	
 }
 
 void GPU_Exec(const int gpu_frames, const int width, unsigned char pic_d[])
 {
   // call the kernel (and do nothing else)
+	
 }
 
 void GPU_Fini(const int size, unsigned char pic[], unsigned char pic_d[])
 {
   // copy the pixel data to the CPU and deallocate the GPU array
+	
 }
 
