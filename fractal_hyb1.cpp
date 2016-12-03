@@ -67,7 +67,8 @@ double delta;
 double x, y, x2, y2;
 int depth;
 
-#pragma omp parallel for default(none) shared(pic, width, frame) private(delta, x, y, x2, y2, depth)
+/* insert an OpenMP parallelized FOR loop with 16 threads, default(none), and a cyclic schedule */
+#pragma omp parallel for default(none) shared(pic, width, gpu_frames, frames) private(delta, x, y, x2, y2, depth)
  for (int frame = gpu_frames; frame < frames; frame++) {
     delta = Delta * pow(.99, frame + 1);
     const double xMin = xMid - delta;
@@ -92,7 +93,6 @@ int depth;
       }
     }
   }
-/* insert an OpenMP parallelized FOR loop with 16 threads, default(none), and a cyclic schedule */
 
   // the following call should copy the GPU's result into the beginning of the CPU's pic array
   GPU_Fini(gpu_frames * width * width * sizeof(unsigned char), pic, pic_d);

@@ -67,23 +67,27 @@ void FractalKernel(const int gpu_frames, const int width, unsigned char pic_d[])
 
 unsigned char* GPU_Init(const int size)
 {
-  // allocate pic_d array on GPU and return pointer to it
-	
-	if(cudaSuccess != cuddaMalloc((void **)&pic_d, frames * width * width * sizeof(unsigned char))) {
+    // allocate pic_d array on GPU and return pointer to it
+	unsigned char * pic_d;
+	if(cudaSuccess != cudaMalloc((void **)&pic_d, size)) {
 		fprintf(stderr, "could not allocate memory\n"); 
 		exit(-1);
-	}	
+	}
+	return pic_d;
 }
 
 void GPU_Exec(const int gpu_frames, const int width, unsigned char pic_d[])
 {
-  // call the kernel (and do nothing else)
-	
+    // call the kernel (and do nothing else)
+	FractalKernel<<<(gpu_frames * width * width + ThreadsPerBlock -1)/ThreadsPerBlock, ThreadsPerBlock>>>(gpu_frames, width, pic_d);
 }
 
 void GPU_Fini(const int size, unsigned char pic[], unsigned char pic_d[])
 {
-  // copy the pixel data to the CPU and deallocate the GPU array
-	
+	// copy the pixel data to the CPU and dealloca
+	if(cudaSuccess != cudaMemcpy( pic, pic_d, size , cudaMemcpyDeviceToHost)) {
+		fprintf(stderr, "could not copy GPU->CPU\n"); 
+		exit(-1);
+	}	
 }
 
