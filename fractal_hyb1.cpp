@@ -68,7 +68,7 @@ double x, y, x2, y2;
 int depth;
 
 /* insert an OpenMP parallelized FOR loop with 16 threads, default(none), and a cyclic schedule */
-#pragma omp parallel for default(none) shared(pic, width, gpu_frames, frames) private(delta, x, y, x2, y2, depth)
+#pragma omp parallel for default(none) shared(pic, width, gpu_frames, frames) private(delta, x, y, x2, y2, depth) num_threads(16) schedule(static, 1)
  for (int frame = gpu_frames; frame < frames; frame++) {
     delta = Delta * pow(.99, frame + 1);
     const double xMin = xMid - delta;
