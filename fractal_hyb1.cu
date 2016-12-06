@@ -19,7 +19,9 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Author: Martin Burtscher
+Author:
+Yinebeb Zenaw
+Ethan Coyle
 */
 
 #include <cstdlib>
@@ -36,7 +38,7 @@ static const double yMid = 0.105089;
 static __global__
 void FractalKernel(const int gpu_frames, const int width, unsigned char pic_d[])
 {
-  // kernel code goes in here; use the same parallelization approach as in the previous project
+    // kernel code goes in here; use the same parallelization approach as in the previous project
     const int idx = threadIdx.x + blockIdx.x * blockDim.x;
     if (idx < gpu_frames * (width * width)) {
         const int col = idx % width;
@@ -60,9 +62,9 @@ void FractalKernel(const int gpu_frames, const int width, unsigned char pic_d[])
           	y = 2 * x * y + cy;
         	x = x2 - y2 + cx;
           	depth--;
-	} while ((depth > 0) && ((x2 + y2) < 5.0));
-    pic_d[idx] = (unsigned char)depth;
-  }
+	    } while ((depth > 0) && ((x2 + y2) < 5.0));
+        pic_d[idx] = (unsigned char)depth;
+    }
 }
 
 unsigned char* GPU_Init(const int size)

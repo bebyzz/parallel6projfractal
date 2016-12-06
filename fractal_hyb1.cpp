@@ -19,7 +19,9 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Author: Martin Burtscher
+Author: 
+Yinebeb Zenaw
+Ethan Coyle
 */
 
 #include <cstdlib>
@@ -63,14 +65,14 @@ int main(int argc, char *argv[])
   GPU_Exec(gpu_frames, width, pic_d);
 
   // the following code should compute the remaining frames on the CPU
-double delta;
-double x, y, x2, y2;
-int depth;
+// double delta;
+// double x, y, x2, y2;
+// int depth;
 
 /* insert an OpenMP parallelized FOR loop with 16 threads, default(none), and a cyclic schedule */
-#pragma omp parallel for default(none) shared(pic, width, gpu_frames, frames) private(delta, x, y, x2, y2, depth) num_threads(16) schedule(static, 1)
+#pragma omp parallel for default(none) shared(pic, width, gpu_frames, frames) num_threads(16) schedule(static, 1)
  for (int frame = gpu_frames; frame < frames; frame++) {
-    delta = Delta * pow(.99, frame + 1);
+    double delta = Delta * pow(.99, frame + 1);
     const double xMin = xMid - delta;
     const double yMin = yMid - delta;
     const double dw = 2.0 * delta / width;
